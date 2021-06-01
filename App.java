@@ -30,8 +30,10 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         BorderPane layout = new BorderPane();
         layout.setPrefSize(1500, 1000);
-        //
+        
+        //drink menu
         Menu lowerMenu = new Menu();
+        DrinkOptions options = new DrinkOptions();
         MilkTea mt = new MilkTea();
         FruitTea ft = new FruitTea();
         Vitasoy vs = new Vitasoy();
@@ -40,6 +42,8 @@ public class App extends Application {
         ft.setup();
         vs.setup();
         a.setup();
+        options.setup();
+        //sales
         Order customerOrder = new Order();
         Sales salesReport = new Sales();
         //
@@ -77,10 +81,10 @@ public class App extends Application {
         BorderPane sideMenu = new BorderPane();
         //
         VBox ordered = new VBox(); //the order shown on the sidemenu
-        this.setUp(mt, customerOrder, order, ordered, subtotal, tax, total);
-        this.setUp(ft, customerOrder, order, ordered, subtotal, tax, total);
-        this.setUp(vs, customerOrder, order, ordered, subtotal, tax, total);
-        this.setUp(a, customerOrder, order, ordered, subtotal, tax, total);
+        this.setUp(layout, options, mt, customerOrder, order, ordered, subtotal, tax, total);
+        this.setUp(layout, options, ft, customerOrder, order, ordered, subtotal, tax, total);
+        this.setUp(layout, options, vs, customerOrder, order, ordered, subtotal, tax, total);
+        this.setUp(layout, options, a, customerOrder, order, ordered, subtotal, tax, total);
         //
         VBox idk = new VBox();
         Button pay = new Button("Pay \nNow");
@@ -160,11 +164,25 @@ public class App extends Application {
         stage.show();
     }
     
-    public void setUp(Menu category, Order customer, VBox order, VBox ordered, Label subtotal, Label tax, Label total) {
+    public void setUp(BorderPane layout, DrinkOptions options, 
+            Menu category, Order customer, VBox order, 
+            VBox ordered, Label subtotal, Label tax, Label total) {
         for(Button button:category.menu()) {
             button.setOnAction(event -> {
                 ordered.getChildren().add(new Label(button.getText()));
                 customer.add(category.drinkMenu().get(category.menu().indexOf(button)));
+                layout.setCenter(options.hLayout());
+                for(Button subbutton:options.menu()) {
+                    subbutton.setOnAction((subevent) -> {
+                        ordered.getChildren().add(new Label(subbutton.getText()));
+                        customer.add(options.drinkMenu().get(options.menu().indexOf(subbutton)));
+                        
+                        subtotal.setText("Subtotal: $" + customer.total());
+                        tax.setText("Tax: $" + customer.tax());
+                        total.setText("Total: $" + customer.totalTotal());
+                        order.getChildren().addAll(subtotal, tax, total);
+                    });
+                }
                 //
                 subtotal.setText("Subtotal: $" + customer.total());
                 tax.setText("Tax: $" + customer.tax());
